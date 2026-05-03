@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pathophysiology Quiz - Unit 1</title>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background-color: #f0f2f5; padding: 20px; line-height: 1.6; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #1a73e8; }
+        .question { margin-bottom: 25px; padding: 15px; border-bottom: 1px solid #eee; }
+        .question p { font-weight: bold; font-size: 1.1em; color: #333; }
+        .options { list-style: none; padding: 0; }
+        .options li { margin: 10px 0; padding: 10px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .options li:hover { background-color: #e8f0fe; }
+        .options li.selected { background-color: #1a73e8; color: white; border-color: #1a73e8; }
+        #submit-btn { display: block; width: 100%; padding: 15px; background: #1a73e8; color: white; border: none; border-radius: 8px; font-size: 1.2em; cursor: pointer; margin-top: 20px; }
+        #result { display: none; text-align: center; margin-top: 30px; padding: 20px; border-radius: 10px; background: #e6f4ea; color: #1e8e3e; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>📋 ควิซทบทวน: Cell Physiology & Pathophysiology</h1>
+    <p style="text-align:center;">จำนวน 32 ข้อ อ้างอิงเนื้อหาจาก Unit 1</p>
+    <div id="quiz-content"></div>
+    <button id="submit-btn" onclick="calculateScore()">ส่งคำตอบและตรวจคะแนน</button>
+    <div id="result"></div>
+</div>
+
+<script>
+const quizData = [
+    { q: "1. หน้าที่ของเซลล์ในข้อใดโดดเด่นในเซลล์ประสาท?", a: ["Movement", "Conductivity", "Secretion", "Respiration"], c: 1 },
+    { q: "2. การที่เซลล์ตับอ่อนหลั่งอินซูลิน จัดเป็นหน้าที่ใด?", a: ["Excretion", "Communication", "Metabolic absorption", "Reproduction"], c: 1 },
+    { q: "3. การบาดเจ็บของเซลล์ที่เรียกว่า Reversible injury มีลักษณะเด่นคืออะไร?", a: ["นิวเคลียสสลายตัว", "เซลล์บวมน้ำ", "เยื่อหุ้มเซลล์ฉีกขาด", "ไลโซโซมแตก"], c: 1 },
+    { q: "4. กลไกหลักที่ทำให้เซลล์บวมเมื่อขาดออกซิเจนคืออะไร?", a: ["การสร้าง ATP เพิ่มขึ้น", "ความบกพร่องของ Na/K pump", "การลดลงของแคลเซียม", "การเพิ่มขึ้นของค่า pH"], c: 1 },
+    { q: "5. การตายแบบ Necrosis มีลักษณะสำคัญคืออะไร?", a: ["ไม่มีการอักเสบ", "เป็นการเปิดโปรแกรมการตาย", "เกิดการอักเสบในเนื้อเยื่อรอบๆ", "เป็นเซลล์เดี่ยวๆ"], c: 2 },
+    { q: "6. การตายแบบใดที่เป็นการตายแบบโปรแกรม (Programmed cell death)?", a: ["Necrosis", "Apoptosis", "Infarction", "Atrophy"], c: 1 },
+    { q: "7. สารใดเป็นเอนไซม์ต้านอนุมูลอิสระ (Antioxidant)?", a: ["Superoxide dismutase (SOD)", "Phospholipase", "Protease", "Endonuclease"], c: 0 },
+    { q: "8. ภาวะ Hypoxia ทำให้เกิดสภาวะใดในเซลล์?", a: ["Alkalosis", "Acidosis (จากกรดแลคติค)", "Hyperthermia", "Hypokalemia"], c: 1 },
+    { q: "9. ลักษณะนิวเคลียสที่หดตัวแน่นและสีเข้มเรียกว่าอะไร?", a: ["Karyolysis", "Karyorrhexis", "Pyknosis", "Autolysis"], c: 2 },
+    { q: "10. การสะสมไขมันในตับ (Fatty change) เกิดจากการสะสมสารใด?", a: ["Cholesterol", "Triglyceride", "Phospholipid", "Glycogen"], c: 1 },
+    { q: "11. สมองลีบในผู้สูงอายุ จัดเป็นการปรับตัวแบบใด?", a: ["Pathologic atrophy", "Physiologic atrophy", "Hypertrophy", "Metaplasia"], c: 1 },
+    { q: "12. หัวใจโตในผู้ป่วยความดันโลหิตสูง จัดเป็นการปรับตัวแบบใด?", a: ["Hyperplasia", "Hypertrophy", "Metaplasia", "Dysplasia"], c: 1 },
+    { q: "13. การขยายตัวของเต้านมหญิงมีครรภ์จากฮอร์โมนคืออะไร?", a: ["Hypertrophy", "Hyperplasia", "Metaplasia", "Atrophy"], c: 1 },
+    { q: "14. การเปลี่ยนชนิดเซลล์เยื่อบุทางเดินหายใจในคนสูบบุหรี่คืออะไร?", a: ["Dysplasia", "Anaplasia", "Metaplasia", "Hypertrophy"], c: 2 },
+    { q: "15. การปรับตัวแบบใดที่ถือเป็นระยะก่อนเกิดมะเร็ง (Pre-cancerous)?", a: ["Atrophy", "Hyperplasia", "Dysplasia", "Metaplasia"], c: 2 },
+    { q: "16. มะเร็งที่เกิดจากเนื้อเยื่อบุผิว (Epithelial tissue) เรียกว่าอะไร?", a: ["Sarcoma", "Carcinoma", "Lymphoma", "Leukemia"], c: 1 },
+    { q: "17. ข้อใดคือลักษณะของเนื้องอกชนิดร้ายแรง (Malignant)?", a: ["มีแคปซูลหุ้มชัดเจน", "เจริญช้า", "สามารถลุกลามและแพร่กระจายได้", "เซลล์คล้ายต้นกำเนิดมาก"], c: 2 },
+    { q: "18. ระยะใดใน Cell cycle ที่มีการจำลอง DNA?", a: ["G1 phase", "S phase", "G2 phase", "M phase"], c: 1 },
+    { q: "19. ยีนที่กระตุ้นการแบ่งตัวของเซลล์จนเป็นมะเร็งเรียกว่าอะไร?", a: ["Tumor suppressor genes", "Oncogenes", "Structural genes", "Housekeeping genes"], c: 1 },
+    { q: "20. ยีน p53 ทำหน้าที่อะไร?", a: ["กระตุ้นมะเร็ง", "กดการเจริญและแบ่งตัวที่ผิดปกติ", "ช่วยในการไหลเวียนเลือด", "สร้างผนังเซลล์"], c: 1 },
+    { q: "21. สารก่อมะเร็งในถั่วคั่วที่ราขึ้น (Aflatoxin) ทำให้เสี่ยงต่อมะเร็งอะไร?", a: ["ปอด", "ตับ", "ผิวหนัง", "ลำไส้ใหญ่"], c: 1 },
+    { q: "22. เชื้อไวรัส HPV สัมพันธ์กับการเกิดมะเร็งชนิดใด?", a: ["ตับ", "ปากมดลูก", "ปอด", "เม็ดเลือดขาว"], c: 1 },
+    { q: "23. ทฤษฎีการเกิดมะเร็งระยะ Initiation คืออะไร?", a: ["ระยะแพร่กระจาย", "ระยะที่ได้รับสารก่อมะเร็งครั้งแรกและยีนเปลี่ยน", "ระยะก้อนโต", "ระยะพักฟื้น"], c: 1 },
+    { q: "24. ระบบ TNM ตัวอักษร N หมายถึงอะไร?", a: ["Tumor size", "Lymph Node metastasis", "Distant Metastasis", "Neoplasia grade"], c: 1 },
+    { q: "25. สารบ่งชี้มะเร็ง PSA ใช้ตรวจมะเร็งอะไร?", a: ["ตับ", "รังไข่", "ต่อมลูกหมาก", "เต้านม"], c: 2 },
+    { q: "26. อาการ Cachexia ในผู้ป่วยมะเร็งคืออะไร?", a: ["บวมน้ำ", "อ่อนเพลียและผอมแห้งรุนแรง", "ไข้สูง", "เลือดแข็งตัว"], c: 1 },
+    { q: "27. การสร้างหลอดเลือดใหม่เพื่อเลี้ยงก้อนมะเร็งเรียกว่าอะไร?", a: ["Apoptosis", "Angiogenesis", "Autophagy", "Adhesion"], c: 1 },
+    { q: "28. ยา Tamoxifen ออกฤทธิ์อย่างไรในการรักษามะเร็งเต้านม?", a: ["ทำลาย DNA", "ยับยั้งตัวรับ Estrogen", "ฆ่าเชื้อไวรัส", "เพิ่มภูมิคุ้มกัน"], c: 1 },
+    { q: "29. มะเร็งระยะ Stage IV หมายถึงอะไร?", a: ["อยู่เฉพาะที่", "กระจายไปต่อมน้ำเหลืองใกล้ๆ", "แพร่กระจายไปอวัยวะที่อยู่ไกล", "รักษาหายขาดแล้ว"], c: 2 },
+    { q: "30. สารก่อมะเร็งในควันบุหรี่มักทำให้เกิดมะเร็งชนิดใด?", a: ["ตับ", "กระเพาะอาหาร", "ปอด", "ผิวหนัง"], c: 2 },
+    { q: "31. กลไก Contact inhibition ในเซลล์ปกติทำหน้าที่อะไร?", a: ["กระตุ้นการแบ่งเซลล์", "หยุดการแบ่งเซลล์เมื่อสัมผัสกัน", "ช่วยให้เซลล์เคลื่อนที่", "ทำลายเซลล์ข้างเคียง"], c: 1 },
+    { q: "32. ยีน HER-2 สัมพันธ์กับมะเร็งชนิดใด?", a: ["ตับ", "เต้านม", "รังไข่", "ต่อมลูกหมาก"], c: 1 }
+];
+
+const quizContainer = document.getElementById('quiz-content');
+quizData.forEach((data, index) => {
+    let qDiv = document.createElement('div');
+    qDiv.className = 'question';
+    let qText = `<p>${data.q}</p><ul class="options">`;
+    data.a.forEach((opt, i) => {
+        qText += `<li onclick="selectOption(${index}, ${i})" id="q${index}o${i}">${opt}</li>`;
+    });
+    qText += `</ul>`;
+    qDiv.innerHTML = qText;
+    quizContainer.appendChild(qDiv);
+});
+
+let userAnswers = new Array(quizData.length).fill(null);
+
+function selectOption(qIdx, oIdx) {
+    userAnswers[qIdx] = oIdx;
+    for (let i = 0; i < 4; i++) {
+        document.getElementById(`q${qIdx}o${i}`).classList.remove('selected');
+    }
+    document.getElementById(`q${qIdx}o${oIdx}`).classList.add('selected');
+}
+
+function calculateScore() {
+    let score = 0;
+    userAnswers.forEach((ans, i) => {
+        if (ans === quizData[i].c) score++;
+    });
+    const resultDiv = document.getElementById('result');
+    resultDiv.style.display = 'block';
+    resultDiv.innerHTML = `<h2>คุณได้คะแนน ${score} / ${quizData.length}</h2>` + (score >= 25 ? "ยอดเยี่ยมมากครับ!" : "ลองทบทวนอีกนิดนะครับ สู้ๆ!");
+    window.scrollTo(0, document.body.scrollHeight);
+}
+</script>
+</body>
+</html>
